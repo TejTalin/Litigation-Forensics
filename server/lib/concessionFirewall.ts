@@ -1,6 +1,6 @@
-import { callGroqForJsonContent, GroqError } from "./groqClient";
-import { isFlagConfidence, type FlagConfidence } from "./flagConfidence";
-import type { PreparedDocument } from "./contradictionTrap";
+import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { isFlagConfidence, type FlagConfidence } from "./flagConfidence.js";
+import type { PreparedDocument } from "./contradictionTrap.js";
 
 /**
  * Indexing a whole case file is a heavier, once-per-session pass than the

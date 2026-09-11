@@ -1,7 +1,7 @@
-import { callGroqForJsonContent, GroqError } from "./groqClient";
-import { isFlagConfidence, type FlagConfidence } from "./flagConfidence";
+import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { isFlagConfidence, type FlagConfidence } from "./flagConfidence.js";
 
-export { GroqError } from "./groqClient";
+export { GroqError } from "./groqClient.js";
 
 export type RiskType =
   | "admission"

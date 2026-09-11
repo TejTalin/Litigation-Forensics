@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { sql } from "@vercel/postgres";
-import { fetchNormalizedBoardText, runParserRule } from "../../server/lib/courtQueueParser";
+import { fetchNormalizedBoardText, runParserRule } from "../../server/lib/courtQueueParser.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) return res.status(401).json({ error: "Unauthorized" });

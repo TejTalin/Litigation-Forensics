@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
-import { callGroqForJsonContent, GroqError } from "./groqClient";
-import { logger } from "./logger";
+import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { logger } from "./logger.js";
 
 const USER_AGENT =
   "Mozilla/5.0 (compatible; LitigationForensics/1.0; +https://example.com)";

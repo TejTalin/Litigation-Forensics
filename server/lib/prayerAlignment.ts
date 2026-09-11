@@ -1,5 +1,5 @@
-import { callGroqForJsonContent, GroqError } from "./groqClient";
-import { isFlagConfidence, type FlagConfidence } from "./flagConfidence";
+import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { isFlagConfidence, type FlagConfidence } from "./flagConfidence.js";
 
 export type MismatchType = "no_corresponding_relief" | "missing_companion_prayer";
 

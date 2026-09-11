@@ -1,6 +1,6 @@
 import { createWorker } from "tesseract.js";
 import { PDFParse } from "pdf-parse";
-import { logger } from "./logger";
+import { logger } from "./logger.js";
 
 export type ExtractionMethod = "direct_text" | "ocr_image" | "ocr_pdf";
 

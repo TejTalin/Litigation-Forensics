@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { analyzeCorrespondence } from "../server/lib/groq";
-import { analyzePleadingForMissingParties } from "../server/lib/partyRadar";
-import { analyzePrayerAlignment } from "../server/lib/prayerAlignment";
-import { analyzeContradictions, prepareCaseDocuments } from "../server/lib/contradictionTrap";
-import { indexCaseBackdrop, checkConcession } from "../server/lib/concessionFirewall";
-import { analyzeCitationTreatment } from "../server/lib/citationTreatment";
-import { extractDocumentText } from "../server/lib/extractText";
+import { analyzeCorrespondence } from "../server/lib/groq.js";
+import { analyzePleadingForMissingParties } from "../server/lib/partyRadar.js";
+import { analyzePrayerAlignment } from "../server/lib/prayerAlignment.js";
+import { analyzeContradictions, prepareCaseDocuments } from "../server/lib/contradictionTrap.js";
+import { indexCaseBackdrop, checkConcession } from "../server/lib/concessionFirewall.js";
+import { analyzeCitationTreatment } from "../server/lib/citationTreatment.js";
+import { extractDocumentText } from "../server/lib/extractText.js";
 
 type InputDocument = { name?: string; text?: string; fileBase64?: string; mimeType?: string };
 async function textOf(doc: InputDocument) {

@@ -1,5 +1,5 @@
-import { callGroqForJsonContent, GroqError } from "./groqClient";
-import { isFlagConfidence, type FlagConfidence } from "./flagConfidence";
+import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { isFlagConfidence, type FlagConfidence } from "./flagConfidence.js";
 
 export type PartyType = "necessary" | "proper";
 export type ProceedingType = "plaint" | "appeal" | "writ_petition";
