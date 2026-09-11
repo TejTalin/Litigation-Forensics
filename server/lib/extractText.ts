@@ -49,20 +49,14 @@ async function extractFromPdf(buffer: Buffer): Promise<ExtractedDocument> {
       return { text: directText, method: "direct_text" };
     }
 
-    logger.info(
-      "Direct PDF text extraction returned empty/garbled content, falling back to OCR",
+    // Scanned/image-only PDFs would need page-to-image rendering + OCR,
+    // which depends on a native canvas library that isn't reliably
+    // available in this serverless environment. Rather than crash, fail
+    // clearly so the user can paste the text or upload it as an image
+    // instead -- both of those paths work.
+    throw new ExtractionError(
+      "This PDF has no extractable text (it appears to be a scanned image). Please paste the text directly, or upload it as a JPG/PNG image instead.",
     );
-
-    const screenshot = await parser.getScreenshot({ scale: 2 });
-    const pageTexts: string[] = [];
-    for (const page of screenshot.pages) {
-      const imageBuffer = Buffer.isBuffer(page.data)
-        ? page.data
-        : Buffer.from(page.data);
-      const pageText = await ocrImageBuffer(imageBuffer);
-      pageTexts.push(pageText);
-    }
-    return { text: pageTexts.join("\n\n"), method: "ocr_pdf" };
   } finally {
     await parser.destroy();
   }
