@@ -1,6 +1,5 @@
 import { createWorker } from "tesseract.js";
-import { PDFParse } from "pdf-parse";
-import { logger } from "./logger.js";
+import { logger } from "./logger";
 
 export type ExtractionMethod = "direct_text" | "ocr_image" | "ocr_pdf";
 
@@ -40,6 +39,7 @@ async function ocrImageBuffer(buffer: Buffer): Promise<string> {
 }
 
 async function extractFromPdf(buffer: Buffer): Promise<ExtractedDocument> {
+  const { PDFParse } = await import("pdf-parse");
   const parser = new PDFParse({ data: new Uint8Array(buffer) });
   try {
     const result = await parser.getText();
