@@ -124,9 +124,8 @@ export async function extractDocumentText(
     );
   } catch (err) {
     if (err instanceof ExtractionError) throw err;
-    throw new ExtractionError(
-      "Failed to extract text from the uploaded file.",
-      err instanceof Error ? err.message : String(err),
-    );
+    const detail = err instanceof Error ? (err.stack ?? err.message) : String(err);
+    logger.error({ fileName, mimeType, detail }, "extractDocumentText failed");
+    throw new ExtractionError("Failed to extract text from the uploaded file.", detail);
   }
 }
