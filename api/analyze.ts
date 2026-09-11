@@ -5,13 +5,27 @@ import { analyzePrayerAlignment } from "../server/lib/prayerAlignment.js";
 import { analyzeContradictions, prepareCaseDocuments } from "../server/lib/contradictionTrap.js";
 import { indexCaseBackdrop, checkConcession } from "../server/lib/concessionFirewall.js";
 import { analyzeCitationTreatment } from "../server/lib/citationTreatment.js";
-import { extractDocumentText } from "../server/lib/extractText.js";
+import { extractDocumentText, ExtractionError } from "../server/lib/extractText.js";
 
 type InputDocument = { name?: string; text?: string; fileBase64?: string; mimeType?: string };
 async function textOf(doc: InputDocument) {
-  return (await extractDocumentText({ text: doc.text, fileBase64: doc.fileBase64, fileName: doc.name, mimeType: doc.mimeType })).text;
+  try {
+    return (await extractDocumentText({ text: doc.text, fileBase64: doc.fileBase64, fileName: doc.name, mimeType: doc.mimeType })).text;
+  } catch (err) {
+    // TEMP DEBUG: surface the real underlying cause in the response so it shows
+    // up in the browser network tab, instead of only in Vercel function logs.
+    // Remove the `debug` field once the root cause is confirmed fixed.
+    if (err instanceof ExtractionError) {
+      const debugErr = new Error(err.message) as Error & { debug?: string };
+      debugErr.debug = err.details;
+      throw debugErr;
+    }
+    throw err;
+  }
 }
-function fail(res: VercelResponse, status: number, message: string) { return res.status(status).json({ success: false, error: message }); }
+function fail(res: VercelResponse, status: number, message: string, debug?: string) {
+  return res.status(status).json({ success: false, error: message, ...(debug ? { debug } : {}) });
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
@@ -39,6 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     return fail(res, 400, "Unknown analysis module.");
   } catch (error) {
-    return fail(res, 502, error instanceof Error ? error.message : "Analysis failed.");
+    const debug = error instanceof Error ? (error as Error & { debug?: string }).debug : undefined;
+    return fail(res, 502, error instanceof Error ? error.message : "Analysis failed.", debug);
   }
 }
