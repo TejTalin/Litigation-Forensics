@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from './theme';
 import { AmbientBackground } from './components/AmbientBackground';
 import { CustomCursor } from './components/CustomCursor';
@@ -42,6 +43,7 @@ function App() {
             )}
           </PageTransition>
         </main>
+        <Analytics />
       </div>
     </ThemeProvider>
   );
