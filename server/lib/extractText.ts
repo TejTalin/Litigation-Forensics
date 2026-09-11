@@ -1,5 +1,5 @@
 import { createWorker } from "tesseract.js";
-import { logger } from "./logger";
+import { logger } from "./logger.js";
 
 export type ExtractionMethod = "direct_text" | "ocr_image" | "ocr_pdf";
 
