@@ -3,5 +3,5 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "functions": { "api/**/*.ts": { "maxDuration": 60 } },
-  "crons": [{ "path": "/api/cron/poll", "schedule": "*/5 * * * *" }]
+  "crons": [{ "path": "/api/cron/poll", "schedule": "0 3 * * *" }]
 }
