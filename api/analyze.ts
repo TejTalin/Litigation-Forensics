@@ -1,0 +1,44 @@
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { analyzeCorrespondence } from "../server/lib/groq";
+import { analyzePleadingForMissingParties } from "../server/lib/partyRadar";
+import { analyzePrayerAlignment } from "../server/lib/prayerAlignment";
+import { analyzeContradictions, prepareCaseDocuments } from "../server/lib/contradictionTrap";
+import { indexCaseBackdrop, checkConcession } from "../server/lib/concessionFirewall";
+import { analyzeCitationTreatment } from "../server/lib/citationTreatment";
+import { extractDocumentText } from "../server/lib/extractText";
+
+type InputDocument = { name?: string; text?: string; fileBase64?: string; mimeType?: string };
+async function textOf(doc: InputDocument) {
+  return (await extractDocumentText({ text: doc.text, fileBase64: doc.fileBase64, fileName: doc.name, mimeType: doc.mimeType })).text;
+}
+function fail(res: VercelResponse, status: number, message: string) { return res.status(status).json({ success: false, error: message }); }
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
+  try {
+    const { module, documents = [], citation, concessionText } = req.body as { module: string; documents?: InputDocument[]; citation?: string; concessionText?: string };
+    if (module === "citation") {
+      if (!citation?.trim()) return fail(res, 400, "Enter a citation to check.");
+      const result = await analyzeCitationTreatment(citation.trim());
+      return res.json({ success: true, result, disclaimer: "AI-inferred first-pass signal only. Independently verify treatment before relying on it." });
+    }
+    if (!Array.isArray(documents) || documents.length === 0) return fail(res, 400, "Upload at least one document.");
+    const prepared = await Promise.all(documents.map(async (doc, index) => ({ label: doc.name || `Document ${index + 1}`, text: await textOf(doc) })));
+    if (prepared.some((doc) => !doc.text.trim())) return fail(res, 422, "Text could not be extracted from one or more documents.");
+    if (module === "trapdoor") {
+      const results = await Promise.all(prepared.map(async (doc) => ({ ...doc, ...(await analyzeCorrespondence(doc.text)) })));
+      return res.json({ success: true, result: { results, clean: results.every((r) => r.clean) } });
+    }
+    if (module === "missing-party") return res.json({ success: true, result: await analyzePleadingForMissingParties(prepared[0].text) });
+    if (module === "prayer-pleading") return res.json({ success: true, result: await analyzePrayerAlignment(prepared[0].text) });
+    if (module === "contradiction") return res.json({ success: true, result: await analyzeContradictions(prepareCaseDocuments(prepared)) });
+    if (module === "concession") {
+      const backdrop = await indexCaseBackdrop(prepareCaseDocuments(prepared));
+      if (!concessionText?.trim()) return res.json({ success: true, result: { backdrop, flags: [], clean: true, note: "Case backdrop indexed. Enter a proposed concession to test it." } });
+      return res.json({ success: true, result: await checkConcession(backdrop, concessionText) });
+    }
+    return fail(res, 400, "Unknown analysis module.");
+  } catch (error) {
+    return fail(res, 502, error instanceof Error ? error.message : "Analysis failed.");
+  }
+}

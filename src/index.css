@@ -1,0 +1,274 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme — warm parchment/ivory */
+    --bg-base: #f4ecd8;
+    --bg-surface: #ede2c8;
+    --bg-surface-2: #e4d7b6;
+    --bg-elevated: #f8f1de;
+    --border: #c9b896;
+    --border-strong: #b0a078;
+    --text-primary: #3a1420;
+    --text-secondary: #6b4a3a;
+    --text-tertiary: #8a7359;
+    --accent: #8c6b32;
+    --accent-bright: #a07f3f;
+    --oxblood: #8b1e3f;
+    --oxblood-dim: #a93854;
+    --ivory: #3a1420;
+
+    --risk-critical: #c0392b;
+    --risk-critical-bg: #f9e0db;
+    --risk-warning: #c88a2e;
+    --risk-warning-bg: #f6ead0;
+    --risk-clean: #4a7c2f;
+    --risk-clean-bg: #e2ecd7;
+
+    --node-line: #a08040;
+  }
+
+  [data-theme="dark"] {
+    /* Dark theme — deep oxblood/burgundy */
+    --bg-base: #2a0e18;
+    --bg-surface: #3a1420;
+    --bg-surface-2: #42121f;
+    --bg-elevated: #4e1d2c;
+    --border: #5e2838;
+    --border-strong: #6e3344;
+    --text-primary: #f0e6d2;
+    --text-secondary: #c4b49a;
+    --text-tertiary: #8e7f6a;
+    --accent: #c29a4f;
+    --accent-bright: #d4ae5e;
+    --oxblood: #d4596e;
+    --oxblood-dim: #b0455a;
+    --ivory: #f0e6d2;
+
+    --risk-critical: #e55050;
+    --risk-critical-bg: #4a1a1f;
+    --risk-warning: #e0a843;
+    --risk-warning-bg: #3d2e15;
+    --risk-clean: #6ba84f;
+    --risk-clean-bg: #1e2d18;
+
+    --node-line: #8c6b32;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Geist', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Bricolage Grotesque', serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .font-mono {
+    font-family: 'Geist Mono', monospace;
+  }
+
+  .font-display {
+    font-family: 'Bricolage Grotesque', serif;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--bg-base);
+  }
+}
+
+@layer utilities {
+  .bg-base { background-color: var(--bg-base); }
+  .bg-surface { background-color: var(--bg-surface); }
+  .bg-surface-2 { background-color: var(--bg-surface-2); }
+  .bg-elevated { background-color: var(--bg-elevated); }
+  .border-default { border-color: var(--border); }
+  .border-strong { border-color: var(--border-strong); }
+  .text-primary { color: var(--text-primary); }
+  .text-secondary { color: var(--text-secondary); }
+  .text-tertiary { color: var(--text-tertiary); }
+  .text-accent { color: var(--accent); }
+  .text-accent-bright { color: var(--accent-bright); }
+  .text-oxblood { color: var(--oxblood); }
+  .text-ivory { color: var(--ivory); }
+  .bg-accent { background-color: var(--accent); }
+  .bg-oxblood { background-color: var(--oxblood); }
+  .bg-elevated { background-color: var(--bg-elevated); }
+
+  .text-risk-critical { color: var(--risk-critical); }
+  .text-risk-warning { color: var(--risk-warning); }
+  .text-risk-clean { color: var(--risk-clean); }
+  .bg-risk-critical { background-color: var(--risk-critical-bg); }
+  .bg-risk-warning { background-color: var(--risk-warning-bg); }
+  .bg-risk-clean { background-color: var(--risk-clean-bg); }
+  .border-risk-critical { border-color: var(--risk-critical); }
+  .border-risk-warning { border-color: var(--risk-warning); }
+  .border-risk-clean { border-color: var(--risk-clean); }
+
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* Card glow follow helper — set --gx/--gy via JS on hover */
+  .card-glow {
+    position: relative;
+    overflow: hidden;
+  }
+  .card-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle 200px at var(--gx, 50%) var(--gy, 50%),
+      rgba(194, 154, 79, 0.12),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .card-glow:hover::before {
+    opacity: 1;
+  }
+  .card-glow > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Dashed connection line for evidence board */
+.evidence-line {
+  stroke: var(--node-line);
+  stroke-dasharray: 5 4;
+  fill: none;
+  opacity: 0.5;
+}
+
+/* === Animations === */
+
+@keyframes pulse-ambient {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(30px, -20px); }
+  66% { transform: translate(-20px, 25px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes line-draw {
+  from { stroke-dashoffset: 300; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes dash-flow {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -18; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bar-grow {
+  from { width: 0; }
+}
+
+.animate-fade-in-up { animation: fade-in-up 0.5s ease-out forwards; }
+.animate-fade-in { animation: fade-in 0.4s ease-out forwards; }
+.animate-slide-in-right { animation: slide-in-right 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.animate-scale-in { animation: scale-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+/* Evidence line flowing dashes */
+.evidence-line-flow {
+  stroke: var(--node-line);
+  stroke-dasharray: 5 4;
+  fill: none;
+  opacity: 0.5;
+  animation: dash-flow 1.5s linear infinite;
+}
+
+/* Stagger helper: set --i as inline style for delay */
+.stagger-in {
+  opacity: 0;
+  animation: fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* Shimmer text for accents */
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0%,
+    var(--accent-bright) 50%,
+    var(--accent) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
