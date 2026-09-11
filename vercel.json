@@ -5,7 +5,7 @@
   "functions": {
     "api/**/*.ts": {
       "maxDuration": 60,
-      "includeFiles": "node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs"
+      "includeFiles": "node_modules/{pdfjs-dist/legacy/build/pdf.worker.mjs,@napi-rs/canvas/**,@napi-rs/canvas-linux-x64-gnu/**,@napi-rs/canvas-linux-x64-musl/**}"
     }
   },
   "crons": [{ "path": "/api/cron/poll", "schedule": "0 3 * * *" }]
