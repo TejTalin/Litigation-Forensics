@@ -1,4 +1,4 @@
-import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { callGroqForJsonContent, GroqError, GROQ_REQUEST_TIMEOUT_MS } from "./groqClient.js";
 import { isFlagConfidence, type FlagConfidence } from "./flagConfidence.js";
 
 export interface ContradictionFlag {
@@ -238,6 +238,8 @@ export async function analyzeContradictions(
     `The following ${documents.length} document${
       documents.length === 1 ? "" : "s"
     } were all filed by the same party in the same case. Cross-reference them for genuine factual contradictions:\n\n${body}`,
+    GROQ_REQUEST_TIMEOUT_MS,
+    2,
   );
 
   return parseContradictionPayload(content);

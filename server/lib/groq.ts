@@ -1,4 +1,4 @@
-import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { callGroqForJsonContent, GroqError, GROQ_REQUEST_TIMEOUT_MS } from "./groqClient.js";
 import { isFlagConfidence, type FlagConfidence } from "./flagConfidence.js";
 
 export { GroqError } from "./groqClient.js";
@@ -187,6 +187,8 @@ export async function analyzeCorrespondence(
   const content = await callGroqForJsonContent(
     direction === "incoming" ? INCOMING_SYSTEM_PROMPT : OUTGOING_SYSTEM_PROMPT,
     `Analyze the following ${direction} correspondence${direction === "incoming" ? " from opposing counsel" : ""}:\n\n"""\n${text}\n"""`,
+    GROQ_REQUEST_TIMEOUT_MS,
+    2,
   );
   return parseReasoningPayload(content);
 }
@@ -203,6 +205,8 @@ export async function analyzeCorrespondenceThread(
   const content = await callGroqForJsonContent(
     THREAD_SYSTEM_PROMPT,
     `Analyze this complete correspondence thread in chronological order. Reason across messages, not one message at a time:\n\n${thread}`,
+    GROQ_REQUEST_TIMEOUT_MS,
+    2,
   );
   const reasoning = parseReasoningPayload(content);
   return { ...reasoning, message_count: messages.length };

@@ -1,4 +1,4 @@
-import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { callGroqForJsonContent, GroqError, GROQ_REQUEST_TIMEOUT_MS } from "./groqClient.js";
 import { isFlagConfidence, type FlagConfidence } from "./flagConfidence.js";
 import type { PreparedDocument } from "./contradictionTrap.js";
 
@@ -314,6 +314,7 @@ export async function indexCaseBackdrop(
       documents.length === 1 ? "" : "s"
     } are the case file. Index every pleaded factual assertion and every legal position or defence taken in them:\n\n${body}`,
     BACKDROP_INDEX_TIMEOUT_MS,
+    2,
   );
 
   return parseBackdropPayload(content);
@@ -348,6 +349,8 @@ export async function checkConcession(
     `INDEX OF POSITIONS ALREADY PLEADED IN THIS CASE:\n${renderBackdrop(
       backdrop,
     )}\n\nCONCESSION COUNSEL IS CONSIDERING MAKING, EXACTLY AS TYPED:\n"${concession}"\n\nIdentify every pleaded position above that this concession would contradict, undermine, or materially weaken.`,
+    GROQ_REQUEST_TIMEOUT_MS,
+    2,
   );
 
   return parseConcessionPayload(content);

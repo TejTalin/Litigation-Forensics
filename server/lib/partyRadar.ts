@@ -1,4 +1,4 @@
-import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { callGroqForJsonContent, GroqError, GROQ_REQUEST_TIMEOUT_MS } from "./groqClient.js";
 import { isFlagConfidence, type FlagConfidence } from "./flagConfidence.js";
 
 export type PartyType = "necessary" | "proper";
@@ -237,6 +237,8 @@ export async function analyzePleadingForMissingParties(
   const content = await callGroqForJsonContent(
     buildSystemPrompt(proceedingType),
     `Analyze the following ${proceedingType.replace("_", " ")} for missing necessary parties/respondents:\n\n"""\n${text}\n"""`,
+    GROQ_REQUEST_TIMEOUT_MS,
+    2,
   );
   return parsePartyRadarPayload(content);
 }

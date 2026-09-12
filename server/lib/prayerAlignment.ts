@@ -1,4 +1,4 @@
-import { callGroqForJsonContent, GroqError } from "./groqClient.js";
+import { callGroqForJsonContent, GroqError, GROQ_REQUEST_TIMEOUT_MS } from "./groqClient.js";
 import { isFlagConfidence, type FlagConfidence } from "./flagConfidence.js";
 
 export type MismatchType = "no_corresponding_relief" | "missing_companion_prayer";
@@ -150,6 +150,8 @@ export async function analyzePrayerAlignment(
   const content = await callGroqForJsonContent(
     SYSTEM_PROMPT,
     `Analyze the following draft plaint/petition for alignment between pleaded grounds and the prayer clause.${missingPartyContext ? ` A Missing Party Radar review of this same document found: ${missingPartyContext}. Check specifically whether any prayer seeks relief directly affecting that absent party's interest, and flag the resulting alignment risk where supported.` : ""}\n\n"""\n${text}\n"""`,
+    GROQ_REQUEST_TIMEOUT_MS,
+    2,
   );
   return parsePrayerAlignmentPayload(content);
 }
