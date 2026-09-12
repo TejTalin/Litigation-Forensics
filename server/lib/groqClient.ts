@@ -48,13 +48,26 @@ export async function callGroqForJsonContent(
    * setup-style caller that can tolerate extra latency should raise this.
    */
   retriesOn429: number = 0,
+  /**
+   * Internal: which configured Groq API key to use this attempt (0 = primary,
+   * 1 = secondary). Callers should never set this directly -- it's advanced
+   * automatically when rotating keys on a rate limit.
+   */
+  keyIndex: number = 0,
 ): Promise<string> {
-  const apiKey = process.env["GROQ_API_KEY"];
-  if (!apiKey) {
+  // Support up to two independent Groq accounts so a rate limit on one key
+  // (shared per-account, not per-request) doesn't have to stall or fail a
+  // live analysis -- the second key is tried immediately, at zero extra
+  // latency, before falling back to a timed wait-and-retry on either.
+  const apiKeys = [process.env["GROQ_API_KEY"], process.env["GROQ_API_KEY_2"]].filter(
+    (key): key is string => Boolean(key && key.trim()),
+  );
+  if (apiKeys.length === 0) {
     throw new GroqError(
       "GROQ_API_KEY is not configured. The AI reasoning cannot run without it.",
     );
   }
+  const apiKey = apiKeys[keyIndex % apiKeys.length];
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -75,6 +88,11 @@ export async function callGroqForJsonContent(
           model: GROQ_MODEL,
           temperature: 0,
           response_format: { type: "json_object" },
+          // Without an explicit cap, Groq's default output limit can cut a
+          // large multi-document JSON response off mid-generation, producing
+          // a 400 "Failed to generate JSON" error rather than a usable
+          // (or even a cleanly-failing) result. Give every call real headroom.
+          max_completion_tokens: 8000,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userContent },
@@ -107,19 +125,36 @@ export async function callGroqForJsonContent(
         { status: response.status, body: bodyText },
         "Groq API returned a non-OK response",
       );
-      if (response.status === 429 && retriesOn429 > 0) {
-        const waitMs = parseRetryAfterMs(bodyText) ?? 15_000;
-        logger.warn(
-          { waitMs, retriesLeft: retriesOn429 },
-          "Groq rate limited -- waiting before retry",
-        );
-        await new Promise((resolve) => setTimeout(resolve, waitMs));
-        return callGroqForJsonContent(
-          systemPrompt,
-          userContent,
-          timeoutMs,
-          retriesOn429 - 1,
-        );
+      if (response.status === 429) {
+        const nextKeyIndex = keyIndex + 1;
+        if (nextKeyIndex < apiKeys.length) {
+          logger.warn(
+            { fromKeyIndex: keyIndex, toKeyIndex: nextKeyIndex },
+            "Groq rate limited -- switching to backup API key",
+          );
+          return callGroqForJsonContent(
+            systemPrompt,
+            userContent,
+            timeoutMs,
+            retriesOn429,
+            nextKeyIndex,
+          );
+        }
+        if (retriesOn429 > 0) {
+          const waitMs = parseRetryAfterMs(bodyText) ?? 15_000;
+          logger.warn(
+            { waitMs, retriesLeft: retriesOn429 },
+            "Groq rate limited on all configured keys -- waiting before retry",
+          );
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
+          return callGroqForJsonContent(
+            systemPrompt,
+            userContent,
+            timeoutMs,
+            retriesOn429 - 1,
+            0,
+          );
+        }
       }
       throw new GroqError(
         `Groq API request failed with status ${response.status}.`,
