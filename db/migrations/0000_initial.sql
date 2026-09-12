@@ -10,3 +10,10 @@ CREATE TABLE IF NOT EXISTS scan_results (
 CREATE TABLE IF NOT EXISTS court_queue_watches (
   id uuid PRIMARY KEY, court_name text NOT NULL, court_number text NOT NULL, user_item_number integer NOT NULL, status text NOT NULL DEFAULT 'armed', board_url text, parser_rule jsonb, running_item_number integer, last_checked_at timestamptz, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS court_queue_observations (
+  id uuid PRIMARY KEY,
+  watch_id uuid REFERENCES court_queue_watches(id) ON DELETE CASCADE,
+  running_item_number integer NOT NULL,
+  observed_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS court_queue_observations_watch_time_idx ON court_queue_observations (watch_id, observed_at);

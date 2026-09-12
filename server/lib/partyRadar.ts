@@ -199,12 +199,15 @@ export function parsePartyRadarPayload(raw: string): PartyRadarResult {
     };
   });
 
-  // Only "necessary" parties are ever surfaced as flags -- "proper" party
-  // candidates are informational only per the spec and must not appear here.
-  const necessaryFlags = allFlags.filter(
-    (flag) => flag.party_type === "necessary",
-  );
-  const computedClean = necessaryFlags.length === 0 && defects.length === 0;
+  // `flags` is the necessary-party output channel. Silently dropping a model
+  // response labelled "proper" here used to turn a potentially material
+  // finding into a clean result. Reject that malformed contract instead.
+  if (allFlags.some((flag) => flag.party_type !== "necessary")) {
+    throw new GroqError(
+      "The AI model placed a non-necessary party in the necessary-party flags array; the analysis could not be trusted.",
+    );
+  }
+  const computedClean = allFlags.length === 0 && defects.length === 0;
 
   // A contradictory clean value is not safe to interpret. In particular, do
   // not turn an uncertain model response into a successful clean review.
@@ -215,7 +218,7 @@ export function parsePartyRadarPayload(raw: string): PartyRadarResult {
   }
 
   return {
-    flags: necessaryFlags,
+    flags: allFlags,
     defects,
     clean: computedClean,
   };

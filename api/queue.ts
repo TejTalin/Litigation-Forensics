@@ -5,7 +5,18 @@ import { randomUUID } from "node:crypto";
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === "GET") {
-      const { rows } = await sql`SELECT * FROM court_queue_watches ORDER BY created_at DESC`;
+      const { rows } = await sql`
+        SELECT w.*, pace.items_per_minute,
+          CASE WHEN pace.items_per_minute > 0 AND w.running_item_number IS NOT NULL
+            THEN GREATEST(0, (w.user_item_number - w.running_item_number) / pace.items_per_minute)
+          END AS eta_minutes
+        FROM court_queue_watches w
+        LEFT JOIN LATERAL (
+          SELECT (MAX(o.running_item_number) - MIN(o.running_item_number)) /
+            NULLIF(EXTRACT(EPOCH FROM (MAX(o.observed_at) - MIN(o.observed_at))) / 60, 0) AS items_per_minute
+          FROM court_queue_observations o WHERE o.watch_id = w.id
+        ) pace ON true
+        ORDER BY w.created_at DESC`;
       return res.json({ watches: rows });
     }
     if (req.method === "POST") {

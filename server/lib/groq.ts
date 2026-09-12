@@ -32,7 +32,9 @@ export interface ThreadAnalysisResult extends GroqReasoningResult {
   message_count: number;
 }
 
-const SYSTEM_PROMPT = `You are a senior litigation risk-review assistant. A lawyer is about to send a piece of outgoing correspondence (email, letter, settlement offer, or reply to opposing counsel), written under time pressure. Your job is to read it exactly the way opposing counsel would, and flag language that could unintentionally create legal exposure.
+export type CorrespondenceDirection = "outgoing" | "incoming";
+
+const OUTGOING_SYSTEM_PROMPT = `You are a senior litigation risk-review assistant. A lawyer is about to send a piece of outgoing correspondence (email, letter, settlement offer, or reply to opposing counsel), written under time pressure. Your job is to read it exactly the way opposing counsel would, and flag language that could unintentionally create legal exposure.
 
 Flag exactly four risk types, and reason about each precisely:
 
@@ -64,6 +66,11 @@ Respond with ONLY a JSON object in exactly this shape, no prose outside the JSON
 }
 
 If there are no risks, return "flags": [] and "clean": true.`;
+
+const INCOMING_SYSTEM_PROMPT = OUTGOING_SYSTEM_PROMPT.replace(
+  "A lawyer is about to send a piece of outgoing correspondence (email, letter, settlement offer, or reply to opposing counsel), written under time pressure. Your job is to read it exactly the way opposing counsel would, and flag language that could unintentionally create legal exposure.",
+  "A lawyer has received correspondence from opposing counsel. Identify opportunities the lawyer's own side may rely on: admissions, waivers, privilege breaks, or limitation acknowledgments made by the opposing side. Do not describe the recipient's own position as risky.",
+);
 
 const THREAD_SYSTEM_PROMPT = `You are a senior litigation risk-review assistant analyzing a complete email or letter thread as one connected sequence. The messages are ordered chronologically and may contain risks that emerge only from their combination: for example, an initial denial followed by a later message supplying a detail that effectively admits the denied fact. Do not analyze each message in isolation.
 
@@ -175,10 +182,11 @@ function parseReasoningPayload(raw: string): GroqReasoningResult {
  */
 export async function analyzeCorrespondence(
   text: string,
+  direction: CorrespondenceDirection = "outgoing",
 ): Promise<GroqReasoningResult> {
   const content = await callGroqForJsonContent(
-    SYSTEM_PROMPT,
-    `Analyze the following outgoing correspondence:\n\n"""\n${text}\n"""`,
+    direction === "incoming" ? INCOMING_SYSTEM_PROMPT : OUTGOING_SYSTEM_PROMPT,
+    `Analyze the following ${direction} correspondence${direction === "incoming" ? " from opposing counsel" : ""}:\n\n"""\n${text}\n"""`,
   );
   return parseReasoningPayload(content);
 }

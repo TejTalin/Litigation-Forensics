@@ -1,5 +1,5 @@
-import { MODULES, DASHBOARD_AGGREGATE, CASES } from '../data';
-import type { ModuleId } from '../types';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { MODULES, CASES } from '../data';
 import { AlertCircle, AlertTriangle, CheckCircle2, ArrowRight, Clock, Scale } from 'lucide-react';
 import type { NavId } from '../components/NavRail';
 import { useCardGlow } from '../hooks/useCardGlow';
@@ -7,12 +7,19 @@ import { useCardGlow } from '../hooks/useCardGlow';
 interface DashboardProps {
   activeCase: typeof CASES[0];
   onNavigate: (id: NavId) => void;
+  moduleResults: Record<string, any>;
 }
 
-export function Dashboard({ activeCase, onNavigate }: DashboardProps) {
-  const totalCritical = DASHBOARD_AGGREGATE.reduce((s, m) => s + m.critical, 0);
-  const totalWarning = DASHBOARD_AGGREGATE.reduce((s, m) => s + m.warning, 0);
-  const totalClean = DASHBOARD_AGGREGATE.reduce((s, m) => s + m.clean, 0);
+export function Dashboard({ activeCase, onNavigate, moduleResults }: DashboardProps) {
+  const aggregate = MODULES.filter(module => module.id !== 'court-queue' && module.id !== 'citation').map(module => {
+    const result = moduleResults[module.id];
+    const flags = result?.results ? result.results.flatMap((entry: any) => entry.flags ?? []) : result?.flags ?? [];
+    const critical = flags.filter((flag: any) => flag.party_type === 'necessary' || flag.risk_type === 'admission' || flag.severity === 'critical').length;
+    return { moduleId: module.id, critical, warning: flags.length - critical, clean: result?.clean === true ? 1 : 0, analyzed: Boolean(result) };
+  });
+  const totalCritical = aggregate.reduce((s, m) => s + m.critical, 0);
+  const totalWarning = aggregate.reduce((s, m) => s + m.warning, 0);
+  const totalClean = aggregate.reduce((s, m) => s + m.clean, 0);
   const glow = useCardGlow();
 
   return (
@@ -87,7 +94,7 @@ export function Dashboard({ activeCase, onNavigate }: DashboardProps) {
         Risk by module
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {DASHBOARD_AGGREGATE.map((agg, idx) => {
+        {aggregate.map((agg, idx) => {
           const mod = MODULES.find((m) => m.id === agg.moduleId)!;
           const total = agg.critical + agg.warning + agg.clean;
           const criticalPct = (agg.critical / total) * 100;
@@ -117,7 +124,7 @@ export function Dashboard({ activeCase, onNavigate }: DashboardProps) {
                       {mod.name}
                     </div>
                     <div className="text-xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
-                      {total} findings
+                      {agg.analyzed ? `${total} finding${total === 1 ? '' : 's'}` : 'Not yet analyzed'}
                     </div>
                   </div>
                   <ArrowRight

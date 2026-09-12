@@ -1,3 +1,4 @@
+/* eslint-disable no-control-regex */
 import * as cheerio from "cheerio";
 export interface CourtParserRule { pattern: string; flags: string; notInSessionPattern?: string }
 

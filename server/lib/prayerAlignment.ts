@@ -145,10 +145,11 @@ function parsePrayerAlignmentPayload(raw: string): PrayerAlignmentResult {
  */
 export async function analyzePrayerAlignment(
   text: string,
+  missingPartyContext?: string,
 ): Promise<PrayerAlignmentResult> {
   const content = await callGroqForJsonContent(
     SYSTEM_PROMPT,
-    `Analyze the following draft plaint/petition for alignment between pleaded grounds and the prayer clause:\n\n"""\n${text}\n"""`,
+    `Analyze the following draft plaint/petition for alignment between pleaded grounds and the prayer clause.${missingPartyContext ? ` A Missing Party Radar review of this same document found: ${missingPartyContext}. Check specifically whether any prayer seeks relief directly affecting that absent party's interest, and flag the resulting alignment risk where supported.` : ""}\n\n"""\n${text}\n"""`,
   );
   return parsePrayerAlignmentPayload(content);
 }

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { analyzeCorrespondence } from "../server/lib/groq.js";
+import { analyzeCorrespondence, type CorrespondenceDirection } from "../server/lib/groq.js";
 import { analyzePleadingForMissingParties } from "../server/lib/partyRadar.js";
 import { analyzePrayerAlignment } from "../server/lib/prayerAlignment.js";
 import { analyzeContradictions, prepareCaseDocuments } from "../server/lib/contradictionTrap.js";
@@ -30,7 +30,7 @@ function fail(res: VercelResponse, status: number, message: string, debug?: stri
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).json({ error: "POST required" });
   try {
-    const { module, documents = [], citation, concessionText } = req.body as { module: string; documents?: InputDocument[]; citation?: string; concessionText?: string };
+    const { module, documents = [], citation, concessionText, direction = "outgoing", missingPartyContext } = req.body as { module: string; documents?: InputDocument[]; citation?: string; concessionText?: string; direction?: CorrespondenceDirection; missingPartyContext?: string };
     if (module === "citation") {
       if (!citation?.trim()) return fail(res, 400, "Enter a citation to check.");
       const result = await analyzeCitationTreatment(citation.trim());
@@ -40,11 +40,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const prepared = await Promise.all(documents.map(async (doc, index) => ({ label: doc.name || `Document ${index + 1}`, text: await textOf(doc) })));
     if (prepared.some((doc) => !doc.text.trim())) return fail(res, 422, "Text could not be extracted from one or more documents.");
     if (module === "trapdoor") {
-      const results = await Promise.all(prepared.map(async (doc) => ({ ...doc, ...(await analyzeCorrespondence(doc.text)) })));
-      return res.json({ success: true, result: { results, clean: results.every((r) => r.clean) } });
+      if (direction !== "incoming" && direction !== "outgoing") return fail(res, 400, "Invalid correspondence direction.");
+      const results = await Promise.all(prepared.map(async (doc) => ({ ...doc, ...(await analyzeCorrespondence(doc.text, direction)) })));
+      return res.json({ success: true, result: { results, clean: results.every((r) => r.clean), direction } });
     }
     if (module === "missing-party") return res.json({ success: true, result: await analyzePleadingForMissingParties(prepared[0].text) });
-    if (module === "prayer-pleading") return res.json({ success: true, result: await analyzePrayerAlignment(prepared[0].text) });
+    if (module === "prayer-pleading") return res.json({ success: true, result: await analyzePrayerAlignment(prepared[0].text, typeof missingPartyContext === "string" ? missingPartyContext.slice(0, 4_000) : undefined) });
     if (module === "contradiction") return res.json({ success: true, result: await analyzeContradictions(prepareCaseDocuments(prepared)) });
     if (module === "concession") {
       const backdrop = await indexCaseBackdrop(prepareCaseDocuments(prepared));
