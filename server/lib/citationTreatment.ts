@@ -70,10 +70,30 @@ async function googleSearch(citation: string): Promise<SearchSource[]> {
   const query = `"${citation}" ("cited by" OR overruled OR distinguished OR followed)`;
   let response: Response;
   try { response = await deps.fetch(`https://www.googleapis.com/customsearch/v1?${new URLSearchParams({ key, cx, q: query, num: String(MAX_SEARCH_RESULTS) })}`); }
-  catch { throw new CitationLookupError("Google Custom Search is unavailable. Please try again shortly."); }
-  if (!response.ok) {
-    if (response.status === 403 || response.status === 429) throw new CitationSearchQuotaError("Daily Google Custom Search quota reached; try again tomorrow.");
+  catch (err) {
+    console.error("Google Custom Search request failed to send:", err);
     throw new CitationLookupError("Google Custom Search is unavailable. Please try again shortly.");
+  }
+  if (!response.ok) {
+    const bodyText = await response.text().catch(() => "");
+    // Log the real status and body every time -- a 403 from Google can mean
+    // quota exhaustion, but just as often means the API isn't enabled, the
+    // key is invalid/restricted to the wrong API, or billing isn't linked.
+    // Previously any 403 was assumed to be quota, which hid the real cause.
+    console.error(`Google Custom Search returned ${response.status}: ${bodyText}`);
+    if (response.status === 429) {
+      throw new CitationSearchQuotaError("Daily Google Custom Search quota reached; try again tomorrow.");
+    }
+    if (response.status === 403) {
+      const looksLikeQuota = /dailyLimitExceeded|userRateLimitExceeded|rateLimitExceeded/i.test(bodyText);
+      if (looksLikeQuota) {
+        throw new CitationSearchQuotaError("Daily Google Custom Search quota reached; try again tomorrow.");
+      }
+      throw new CitationLookupError(
+        `Google Custom Search rejected the request (not a quota issue) -- check that the Custom Search API is enabled, the API key is valid and unrestricted (or restricted to Custom Search API), and billing is linked to the project. Details: ${bodyText.slice(0, 300)}`,
+      );
+    }
+    throw new CitationLookupError(`Google Custom Search is unavailable (status ${response.status}). Please try again shortly.`);
   }
   const payload = await response.json() as { items?: GoogleItem[] };
   return (payload.items ?? []).flatMap((item) => {
