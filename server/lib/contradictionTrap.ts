@@ -112,7 +112,7 @@ Respond with ONLY a JSON object in exactly this shape, no prose outside the JSON
       "statement_b": "the exact or closely-quoted contradicting assertion from the second document",
       "source_b": "document label + paragraph reference, e.g. 'Affidavit dated 20 Jun 2025, para 4'",
       "explanation": "concrete reason these two statements cannot both be true",
-      "legal_basis": "the applicable doctrine if one applies (e.g. estoppel by conduct), otherwise 'internal factual inconsistency'",
+      "legal_basis": "the applicable doctrine if one applies (e.g. estoppel by conduct), otherwise 'internal factual inconsistency' -- never a specific case citation unless certain it is real, correctly described, and Indian law directly on point",
       "confidence": "explicit | inferred",
       "source_kind_a": "pleading | exhibit | other",
       "source_kind_b": "pleading | exhibit | other"
