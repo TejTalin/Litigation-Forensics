@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @layer base {
   :root {
@@ -155,6 +154,20 @@
     position: relative;
     z-index: 1;
   }
+
+  /* Magic Card-style cursor spotlight, recolored to Advinet brass. */
+  .magic-card { position: relative; overflow: hidden; }
+
+  /* Magic UI Dock behaviour adapted to the compact case-navigation bar. */
+  .advinet-dock { backdrop-filter: blur(14px); box-shadow: 0 12px 32px rgba(42, 14, 24, .28); scrollbar-width: thin; }
+  .dock-item { transition: transform .2s ease, color .2s ease, background .2s ease; }
+  .advinet-dock:hover .dock-item { transform: translateY(-1px); }
+  .dock-item:hover { transform: translateY(-8px) scale(1.12) !important; color: var(--accent-bright) !important; background: var(--bg-elevated) !important; }
+
+  /* Brass Border Beam: dormant until the flagged evidence card is hovered. */
+  .border-beam { position: absolute; inset: -1px; z-index: 3; border: 1px solid transparent; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .2s ease; overflow: hidden; background: conic-gradient(from 20deg, transparent 0deg, transparent 255deg, var(--accent-bright) 304deg, transparent 340deg) border-box; -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .border-beam::after { content: ''; position: absolute; width: 44%; aspect-ratio: 1; top: -30%; left: -30%; background: radial-gradient(circle, var(--accent-bright), transparent 65%); filter: blur(5px); animation: border-beam-orbit 2.8s linear infinite; }
+  .border-beam-active, .group:hover .border-beam { opacity: .95; }
 }
 
 /* Dashed connection line for evidence board */
@@ -224,6 +237,10 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes border-beam-orbit {
+  to { transform: translate(270%, 270%); }
+}
+
 @keyframes bar-grow {
   from { width: 0; }
 }
@@ -264,6 +281,10 @@
   animation: shimmer 4s linear infinite;
 }
 
+.lightfall { z-index: -1; overflow: hidden; opacity: .82; }
+.lightfall canvas { width: 100%; height: 100%; display: block; }
+.lightfall::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 12%, color-mix(in srgb, var(--accent) 11%, transparent), transparent 43%), radial-gradient(ellipse at 18% 78%, color-mix(in srgb, var(--oxblood) 15%, transparent), transparent 52%); opacity: .7; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -271,4 +292,11 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  .lightfall { opacity: .65; }
+  .border-beam::after, .evidence-line-flow { animation: none !important; }
+}
+
+@media (max-width: 640px) {
+  .lightfall { opacity: .55; }
+  .card-glow::before { background: radial-gradient(circle 150px at var(--gx, 50%) var(--gy, 50%), rgba(194, 154, 79, 0.1), transparent 60%); }
 }
