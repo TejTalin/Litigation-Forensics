@@ -3,7 +3,7 @@
 
 @layer base {
   :root {
-    /* Light theme — warm parchment/ivory */
+    /* Light theme ‚Äî warm parchment/ivory */
     --bg-base: #f4ecd8;
     --bg-surface: #ede2c8;
     --bg-surface-2: #e4d7b6;
@@ -30,7 +30,7 @@
   }
 
   [data-theme="dark"] {
-    /* Dark theme — deep oxblood/burgundy */
+    /* Dark theme ‚Äî deep oxblood/burgundy */
     --bg-base: #2a0e18;
     --bg-surface: #3a1420;
     --bg-surface-2: #42121f;
@@ -128,7 +128,7 @@
   .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
   .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-  /* Card glow follow helper — set --gx/--gy via JS on hover */
+  /* Card glow follow helper ‚Äî set --gx/--gy via JS on hover */
   .card-glow {
     position: relative;
     overflow: hidden;
