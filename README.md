@@ -2,7 +2,7 @@
 
 **Seven forensic modules that stress-test a case file before your opponent does.**
 
-Built for the ILTN Vibeathon 2026 by Tej Talin Dandlamudi, final-year law student, BML Munjal University.
+Built for the ILTN Vibeathon 2026 by Tej Talin Dandlamudi
 
 Live: [advinet.vercel.app](https://advinet.vercel.app) · Repo: [github.com/TejTalin/Litigation-Forensics](https://github.com/TejTalin/Litigation-Forensics)
 
