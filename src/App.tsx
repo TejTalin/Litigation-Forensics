@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { Analytics } from '@vercel/analytics/react';
-import { ThemeProvider } from './theme';
+import { ThemeProvider, useTheme } from './theme';
 import Lightfall from './components/Lightfall';
 import { CustomCursor } from './components/CustomCursor';
 import { NavRail, type NavId } from './components/NavRail';
@@ -17,6 +17,15 @@ import { CASES } from './data';
 import type { UploadedFile } from './components/UploadZone';
 
 function App() {
+  return (
+    <ThemeProvider>
+      <AppShell />
+    </ThemeProvider>
+  );
+}
+
+function AppShell() {
+  const { theme } = useTheme();
   const [activeNav, setActiveNav] = useState<NavId>('dashboard');
   const [activeCase, setActiveCase] = useState<CaseFile>(CASES[0] ?? { id: 'new', name: 'No case selected', number: 'Upload a document to begin', court: '—', nextHearing: new Date().toISOString(), status: 'Awaiting documents' });
   const [sharedFiles, setSharedFiles] = useState<UploadedFile[]>([]);
@@ -40,18 +49,27 @@ function App() {
 
   const activeModule = MODULES.find((m) => m.id === activeNav);
 
+  // Real per-theme background hex (matches --bg-base in index.css for each theme).
+  // Passing the string "transparent" here previously resolved to black inside
+  // the shader, which was invisible on the dark theme but showed as a visible
+  // gray wash on the light theme -- this is the fix.
+  const lightfallBg = theme === 'dark' ? '#2a0e18' : '#f4ecd8';
+  const lightfallColors = theme === 'dark'
+    ? ['#C29A4F', '#8B1A2F', '#A08040']
+    : ['#8c6b32', '#a07f3f', '#6b4a3a'];
+
   return (
-    <ThemeProvider>
       <div className="min-h-screen relative isolate" style={{ background: 'transparent' }}>
         <Lightfall
           className="lightfall-viewport"
-          colors={['#C29A4F', '#8B1A2F', '#A08040']}
-          backgroundColor="transparent"
+          colors={lightfallColors}
+          backgroundColor={lightfallBg}
           speed={0.4}
           streakCount={2}
-          glow={0.6}
+          glow={theme === 'dark' ? 0.6 : 0.35}
           density={0.4}
-          opacity={0.5}
+          backgroundGlow={theme === 'dark' ? 0.5 : 0.15}
+          opacity={theme === 'dark' ? 0.5 : 0.3}
           paused={prefersReducedMotion}
         />
         <CustomCursor />
@@ -70,7 +88,6 @@ function App() {
         </main>
         <Analytics />
       </div>
-    </ThemeProvider>
   );
 }
 
