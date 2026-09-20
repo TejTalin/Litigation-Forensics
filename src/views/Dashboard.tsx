@@ -3,6 +3,7 @@ import { MODULES, CASES } from '../data';
 import { AlertCircle, AlertTriangle, CheckCircle2, ArrowRight, Clock, Scale } from 'lucide-react';
 import type { NavId } from '../components/NavRail';
 import { useCardGlow } from '../hooks/useCardGlow';
+import { NumberTicker } from '../components/ui/number-ticker';
 
 interface DashboardProps {
   activeCase: typeof CASES[0];
@@ -207,8 +208,8 @@ function MetricTile({
         {icon}
       </div>
       <div>
-        <div className="font-display text-3xl font-bold" style={{ color, animation: 'count-up 0.6s ease-out' }}>
-          {value}
+        <div className="font-display text-3xl font-bold" style={{ color }}>
+          <NumberTicker value={value} />
         </div>
         <div className="text-xs uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>
           {label}
