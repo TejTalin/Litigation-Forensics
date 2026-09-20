@@ -1,1 +1,1 @@
-# Litigation Forensics is a Vite/React legal-review workspace with seven live analysis modules: Trapdoor Scanner, Missing Party Radar, Prayer–Pleading Alignment, Contradiction Trap, Concession Firewall, Citation Treatment, and Court Queue Alert. The original Bolt visual system is retained; results are supplied by Vercel serverless API functions, never by demo findings.
+
