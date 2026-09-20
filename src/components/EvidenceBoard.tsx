@@ -3,6 +3,7 @@ import type { EvidenceNode, EvidenceLink } from '../types';
 import { SOURCE_DOCS } from '../data';
 import { AlertTriangle, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { useCardGlow } from '../hooks/useCardGlow';
+import { BorderBeam } from './ui/border-beam';
 
 interface EvidenceBoardProps {
   nodes: EvidenceNode[];
@@ -164,6 +165,9 @@ export function EvidenceBoard({ nodes, links, summary }: EvidenceBoardProps) {
                     : '0 2px 8px rgba(0,0,0,0.15)',
                 }}
               >
+                {node.severity === 'critical' && (
+                  <BorderBeam size={50} duration={5} colorFrom="var(--accent-bright)" colorTo="var(--risk-critical)" />
+                )}
                 <div className="flex items-center gap-1.5 mb-1">
                   <span
                     className="w-2 h-2 rounded-full shrink-0 transition-all duration-300 group-hover:scale-150"
