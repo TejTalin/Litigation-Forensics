@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from './theme';
-import { AmbientBackground } from './components/AmbientBackground';
+import { Lightfall } from './components/Lightfall';
 import { CustomCursor } from './components/CustomCursor';
 import { NavRail, type NavId } from './components/NavRail';
 import { TopBar } from './components/TopBar';
@@ -34,7 +34,7 @@ function App() {
   return (
     <ThemeProvider>
       <div className="min-h-screen relative" style={{ background: 'var(--bg-base)' }}>
-        <AmbientBackground />
+        <Lightfall />
         <CustomCursor />
         <NavRail active={activeNav} onSelect={setActiveNav} caseRiskCounts={riskCounts} />
         <TopBar activeCase={activeCase} onCaseChange={setActiveCase} />
