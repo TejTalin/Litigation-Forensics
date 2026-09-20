@@ -39,7 +39,7 @@ function App() {
         <NavRail active={activeNav} onSelect={setActiveNav} caseRiskCounts={riskCounts} />
         <TopBar activeCase={activeCase} onCaseChange={setActiveCase} />
 
-        <main className="relative ml-16" style={{ zIndex: 1 }}>
+        <main className="relative pb-24" style={{ zIndex: 1 }}>
           <PageTransition viewKey={activeNav}>
             {activeNav === 'dashboard' && <Dashboard activeCase={activeCase} onNavigate={setActiveNav} moduleResults={moduleResults} />}
             {activeNav === 'guide' && <GuidePage onNavigate={setActiveNav} />}
