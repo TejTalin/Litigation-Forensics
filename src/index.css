@@ -1,7 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 @import 'tw-animate-css';
+@config "../tailwind.config.js";
 
 @layer base {
   :root {
@@ -286,6 +285,12 @@
 .lightfall { z-index: -1; overflow: hidden; opacity: .82; }
 .lightfall canvas { width: 100%; height: 100%; display: block; }
 .lightfall::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 12%, color-mix(in srgb, var(--accent) 11%, transparent), transparent 43%), radial-gradient(ellipse at 18% 78%, color-mix(in srgb, var(--oxblood) 15%, transparent), transparent 52%); opacity: .7; }
+.lightfall-viewport {
+  position: fixed !important;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from './theme';
-import { Lightfall } from './components/Lightfall';
+import Lightfall from './components/Lightfall';
 import { CustomCursor } from './components/CustomCursor';
 import { NavRail, type NavId } from './components/NavRail';
 import { TopBar } from './components/TopBar';
@@ -21,6 +21,15 @@ function App() {
   const [activeCase, setActiveCase] = useState<CaseFile>(CASES[0] ?? { id: 'new', name: 'No case selected', number: 'Upload a document to begin', court: '—', nextHearing: new Date().toISOString(), status: 'Awaiting documents' });
   const [sharedFiles, setSharedFiles] = useState<UploadedFile[]>([]);
   const [moduleResults, setModuleResults] = useState<Record<string, any>>({});
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+    updatePreference();
+    mediaQuery.addEventListener('change', updatePreference);
+    return () => mediaQuery.removeEventListener('change', updatePreference);
+  }, []);
 
   const riskCounts: Record<string, number> = {};
   for (const module of MODULES) {
@@ -33,8 +42,18 @@ function App() {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen relative" style={{ background: 'var(--bg-base)' }}>
-        <Lightfall />
+      <div className="min-h-screen relative isolate" style={{ background: 'transparent' }}>
+        <Lightfall
+          className="lightfall-viewport"
+          colors={['#C29A4F', '#8B1A2F', '#A08040']}
+          backgroundColor="transparent"
+          speed={0.4}
+          streakCount={2}
+          glow={0.6}
+          density={0.4}
+          opacity={0.5}
+          paused={prefersReducedMotion}
+        />
         <CustomCursor />
         <NavRail active={activeNav} onSelect={setActiveNav} caseRiskCounts={riskCounts} />
         <TopBar activeCase={activeCase} onCaseChange={setActiveCase} />
