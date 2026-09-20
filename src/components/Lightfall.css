@@ -1,0 +1,67 @@
+.lightfall-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.lightfall-fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 68% 12%, rgba(194, 154, 79, 0.12), transparent 38%),
+    radial-gradient(ellipse at 18% 78%, rgba(139, 26, 47, 0.12), transparent 48%);
+}
+
+.lightfall-fallback::before,
+.lightfall-fallback::after {
+  content: '';
+  position: absolute;
+  inset: -42%;
+  transform: rotate(-8deg);
+  background: repeating-linear-gradient(
+    112deg,
+    transparent 0 17%,
+    rgba(194, 154, 79, 0.02) 17.2%,
+    rgba(194, 154, 79, 0.3) 17.45%,
+    rgba(160, 128, 64, 0.08) 17.75%,
+    transparent 18.2% 36%
+  );
+  filter: blur(8px);
+  opacity: 0.72;
+  animation: lightfall-fallback-drift 18s linear infinite;
+}
+
+.lightfall-fallback::after {
+  transform: rotate(-8deg) translate3d(10%, 8%, 0);
+  background: repeating-linear-gradient(
+    112deg,
+    transparent 0 28%,
+    rgba(139, 26, 47, 0.03) 28.2%,
+    rgba(139, 26, 47, 0.22) 28.45%,
+    rgba(194, 154, 79, 0.07) 28.8%,
+    transparent 29.2% 48%
+  );
+  filter: blur(12px);
+  opacity: 0.48;
+  animation-duration: 24s;
+  animation-direction: reverse;
+}
+
+@keyframes lightfall-fallback-drift {
+  from {
+    transform: rotate(-8deg) translate3d(-4%, -2%, 0);
+  }
+  to {
+    transform: rotate(-8deg) translate3d(4%, 2%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightfall-fallback::before,
+  .lightfall-fallback::after {
+    animation: none;
+  }
+}
