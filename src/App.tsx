@@ -64,6 +64,7 @@ function AppShell() {
           className="lightfall-viewport"
           colors={lightfallColors}
           backgroundColor={lightfallBg}
+          lightMode={theme === 'light'}
           speed={0.4}
           streakCount={2}
           glow={theme === 'dark' ? 0.6 : 0.35}
