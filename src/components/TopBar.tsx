@@ -15,8 +15,12 @@ export function TopBar({ activeCase, onCaseChange }: TopBarProps) {
 
   return (
     <header
-      className="fixed top-0 left-16 right-0 h-14 z-40 flex items-center px-6 gap-4 border-b"
-      style={{ borderColor: 'var(--border)', background: 'var(--bg-surface)' }}
+      className="fixed top-0 left-0 right-0 h-14 z-40 flex items-center px-6 gap-4"
+      style={{
+        background: 'color-mix(in srgb, var(--bg-surface) 85%, transparent)',
+        backdropFilter: 'blur(14px)',
+        boxShadow: '0 1px 0 color-mix(in srgb, var(--border) 70%, transparent), 0 8px 24px -8px rgba(42, 14, 24, 0.15)',
+      }}
     >
       {/* Wordmark */}
       <div className="flex items-center gap-2 mr-2">
